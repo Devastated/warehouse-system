@@ -1,0 +1,90 @@
+ПРИМЕР ВЫВОДА КОМАНД (получен при локальной проверке; ваши id/время могут отличаться)
+
+$ docker compose up --build -d
+[+] Running 6/6
+ - Container warehouse-db         Started
+ - Container warehouse-products   Started
+ - Container warehouse-inventory  Started
+ - Container warehouse-movements  Started
+ - Container warehouse-gateway    Started
+
+$ docker compose ps
+NAME                   IMAGE                    STATUS                    PORTS
+warehouse-db           postgres:16              running (healthy)         5432/tcp
+warehouse-gateway      warehouse-system-gateway running                   0.0.0.0:8080->8080/tcp
+warehouse-products     ...products              running                   5001/tcp
+warehouse-inventory    ...inventory             running                   5002/tcp
+warehouse-movements    ...movements             running                   5003/tcp
+
+$ curl http://localhost:8080/health
+{"status":"ok","service":"gateway","time":"2026-11-11T10:20:31Z"}
+
+$ curl -X POST http://localhost:8080/api/products -H "Content-Type: application/json" \
+    -d '{"sku":"SKU-001","name":"Кабель HDMI 1м","unit":"шт"}'
+{"id":1,"sku":"SKU-001","name":"Кабель HDMI 1м","unit":"шт","createdAt":"2026-11-11T10:21:02Z"}
+
+$ curl -X POST http://localhost:8080/api/warehouses -H "Content-Type: application/json" \
+    -d '{"name":"Основной склад","location":"Москва, ул. Заводская 1"}'
+{"id":1,"name":"Основной склад","location":"Москва, ул. Заводская 1"}
+
+$ curl -X POST http://localhost:8080/api/movements -H "Content-Type: application/json" \
+    -d '{"type":"IN","warehouseId":1,"productId":1,"quantity":100}'
+{"id":1,"type":"IN","warehouseId":1,"productId":1,"productSku":"SKU-001",
+ "productName":"Кабель HDMI 1м","quantity":100,"balance":100,"createdAt":"2026-11-11T10:21:40Z"}
+
+$ curl http://localhost:8080/api/warehouses/1/stock
+{"warehouseId":1,"items":[{"productId":1,"quantity":100}]}
+
+$ curl -X POST http://localhost:8080/api/movements -H "Content-Type: application/json" \
+    -d '{"type":"OUT","warehouseId":1,"productId":1,"quantity":30}'
+{"id":2,"type":"OUT","warehouseId":1,"productId":1,"productSku":"SKU-001",
+ "productName":"Кабель HDMI 1м","quantity":30,"balance":70,"createdAt":"2026-11-11T10:22:05Z"}
+
+$ curl -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8080/api/movements \
+    -H "Content-Type: application/json" -d '{"type":"OUT","warehouseId":1,"productId":1,"quantity":1000}'
+400
+
+$ docker compose logs --tail=3 movements
+movements  | info: ...
+(видно HTTP-вызовы в products:5001 и inventory:5002)
+
+$ docker compose down && docker compose up -d
+$ curl http://localhost:8080/api/warehouses/1/stock
+{"warehouseId":1,"items":[{"productId":1,"quantity":70}]}   <- данные сохранились
+
+$ docker compose exec db psql -U postgres -d app -c "SELECT id,type,quantity,balance FROM movements.movements;"
+ id | type | quantity | balance
+----+------+----------+---------
+  1 | IN   |      100 |     100
+  2 | OUT  |       30 |      70
+
+=== НОВОЕ: ВЕБ-ПУЛЬТ, ОТЧЁТЫ И ДИАГНОСТИКА ===
+
+$ curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/
+200
+
+$ curl http://localhost:8080/status
+{"status":"ok","time":"2026-11-19T10:43:01Z","services":[
+ {"service":"products","status":"ok","httpCode":200,"responseMs":2},
+ {"service":"inventory","status":"ok","httpCode":200,"responseMs":3},
+ {"service":"movements","status":"ok","httpCode":200,"responseMs":2},
+ {"service":"reports","status":"ok","httpCode":200,"responseMs":4}]}
+
+$ curl http://localhost:8080/api/reports/summary
+{"products":4,"warehouses":2,"stockLines":5,"totalUnits":117,
+ "incoming":2,"outgoing":2,"lowStockCount":2,"lowStockThreshold":5,
+ "warnings":[],"stock":[...],"lowStock":[...],"recentMovements":[...]}
+
+$ curl -s http://localhost:8080/api/reports/text | Select-Object -First 12
+================================================================
+  ОТЧЁТ ПО СКЛАДУ  /  УЧЁТ СКЛАДСКИХ ТОВАРОВ
+  сформирован: 2026-11-19 10:42:11 UTC
+================================================================
+
+  Товаров в справочнике .........     4
+  Складов .......................     2
+  Общее количество на складах ...   117 шт
+  Позиций с низким остатком .....     2 (порог 5 шт)
+
+В браузере: http://localhost/ -> KPI, таблицы, форма операций,
+терминал вывода, текстовый отчёт и четыре зелёные лампочки статуса.

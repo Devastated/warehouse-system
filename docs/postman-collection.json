@@ -1,0 +1,144 @@
+{
+  "info": {
+    "_postman_id": "11111111-2222-3333-4444-555555555555",
+    "name": "Warehouse System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Коллекция для проверки системы учета складских товаров (gateway :8080)"
+  },
+  "item": [
+    {
+      "name": "Health (gateway)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/health"
+      }
+    },
+    {
+      "name": "Status (all services)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/status"
+      }
+    },
+    {
+      "name": "Report summary (JSON)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/reports/summary"
+      }
+    },
+    {
+      "name": "Report stock (JSON)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/reports/stock"
+      }
+    },
+    {
+      "name": "Report text (OUTPUT)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/reports/text"
+      }
+    },
+    {
+      "name": "Create product",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:8080/api/products",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"sku\": \"SKU-001\", \"name\": \"Кабель HDMI 1м\", \"unit\": \"шт\"}"
+        }
+      }
+    },
+    {
+      "name": "Create warehouse",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:8080/api/warehouses",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Основной склад\", \"location\": \"Москва, ул. Заводская 1\"}"
+        }
+      }
+    },
+    {
+      "name": "Movement IN (+100)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:8080/api/movements",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"type\": \"IN\", \"warehouseId\": 1, \"productId\": 1, \"quantity\": 100}"
+        }
+      }
+    },
+    {
+      "name": "Stock on warehouse 1",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/warehouses/1/stock"
+      }
+    },
+    {
+      "name": "Movement OUT (-30)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:8080/api/movements",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"type\": \"OUT\", \"warehouseId\": 1, \"productId\": 1, \"quantity\": 30}"
+        }
+      }
+    },
+    {
+      "name": "Movements history",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/movements"
+      }
+    },
+    {
+      "name": "Movement OUT too big (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:8080/api/movements",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"type\": \"OUT\", \"warehouseId\": 1, \"productId\": 1, \"quantity\": 1000}"
+        }
+      }
+    }
+  ]
+}

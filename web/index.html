@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Веб-пульт учёта складских товаров: остатки, приход, расход, отчёты и диагностика микросервисов.">
+  <title>СКЛАД-ПУЛЬТ — учёт складских товаров</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="hazard" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">СК</div>
+      <div>
+        <div class="brand-title">СКЛАД-ПУЛЬТ <span class="brand-version">v2.0</span></div>
+        <div class="brand-sub">диспетчерская / учёт складских товаров</div>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <span id="modeBadge" class="mode-badge mode-wait">ПОДКЛЮЧЕНИЕ…</span>
+      <span class="clock" id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">СМЕНА 01 / ОПЕРАТИВНЫЙ СРЕЗ</p>
+        <h1>Склад под контролем.</h1>
+        <p class="hero-text">
+          Остатки, приход, расход и состояние сервисов — в одном окне.
+          Все цифры приходят из API; нажатие кнопки печатает результат в терминале.
+        </p>
+        <div class="hero-actions">
+          <button id="refreshBtn" class="btn btn-primary" type="button">Обновить данные</button>
+          <button id="reportBtn" class="btn btn-ghost" type="button">Текстовый отчёт</button>
+          <button id="seedBtn" class="btn btn-ghost" type="button">Заполнить демо</button>
+        </div>
+      </div>
+      <div class="stamp" aria-hidden="true">
+        <div class="stamp-top">ДОКУМЕНТ / ФОРМА СК-7</div>
+        <div class="stamp-main">INVENTORY<br>REPORT</div>
+        <div class="stamp-bottom">_ONLINE_</div>
+      </div>
+    </section>
+
+    <section class="kpis" id="kpis" aria-label="Сводные показатели"></section>
+
+    <section class="workspace">
+      <div class="column">
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Остатки на складах</h2>
+            <span class="panel-code">ТАБЛ. 01 / LIVE</span>
+          </header>
+          <div class="toolbar">
+            <label class="search-field">
+              <span>ПОИСК</span>
+              <input id="stockSearch" type="search" placeholder="склад, SKU или товар…" autocomplete="off">
+            </label>
+            <span id="stockCount" class="counter">—</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Склад</th><th>Товар</th><th>Кол-во</th><th>Состояние</th></tr>
+              </thead>
+              <tbody id="stockRows"><tr><td colspan="4" class="empty">Загрузка…</td></tr></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Журнал операций</h2>
+            <span class="panel-code">ТАБЛ. 02 / HISTORY</span>
+          </header>
+          <div class="toolbar">
+            <label class="search-field">
+              <span>ФИЛЬТР</span>
+              <select id="movementFilter">
+                <option value="ALL">Все операции</option>
+                <option value="IN">Только приход</option>
+                <option value="OUT">Только расход</option>
+              </select>
+            </label>
+            <span id="movementCount" class="counter">—</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>№</th><th>Тип</th><th>Дата (UTC)</th><th>Товар / склад</th><th>Кол-во</th><th>Остаток</th></tr>
+              </thead>
+              <tbody id="movementRows"><tr><td colspan="6" class="empty">Загрузка…</td></tr></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <aside class="column">
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Пульт операций</h2>
+            <span class="panel-code">ВВОД / 03</span>
+          </header>
+
+          <form id="movementForm" class="form-block">
+            <p class="form-title">Новая операция прихода / расхода</p>
+            <div class="form-grid">
+              <label>Тип
+                <select name="type" required>
+                  <option value="IN">ПРИХОД (+)</option>
+                  <option value="OUT">РАСХОД (−)</option>
+                </select>
+              </label>
+              <label>Количество
+                <input name="quantity" type="number" min="1" max="100000" value="10" required>
+              </label>
+              <label>Склад
+                <select name="warehouseId" id="warehouseSelect" required></select>
+              </label>
+              <label>Товар
+                <select name="productId" id="productSelect" required></select>
+              </label>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">Провести операцию</button>
+          </form>
+
+          <div class="form-split">
+            <form id="productForm" class="mini-form">
+              <p class="form-title">Новый товар</p>
+              <input name="sku" placeholder="SKU-004" required>
+              <input name="name" placeholder="Наименование" required>
+              <input name="unit" placeholder="шт" value="шт">
+              <button class="btn btn-outline btn-block" type="submit">Добавить товар</button>
+            </form>
+            <form id="warehouseForm" class="mini-form">
+              <p class="form-title">Новый склад</p>
+              <input name="name" placeholder="Название склада" required>
+              <input name="location" placeholder="Адрес / локация">
+              <span class="form-hint">Склад появится в списках сразу после ответа API.</span>
+              <button class="btn btn-outline btn-block" type="submit">Добавить склад</button>
+            </form>
+          </div>
+        </article>
+
+        <article class="panel terminal-panel">
+          <header class="panel-head">
+            <h2>Терминал вывода</h2>
+            <button id="clearLog" class="link-btn" type="button">ОЧИСТИТЬ</button>
+          </header>
+          <div id="terminal" class="terminal" role="log" aria-live="polite"></div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Диагностика сервисов</h2>
+            <span class="panel-code">GET /STATUS</span>
+          </header>
+          <div id="services" class="services">
+            <p class="empty">Проверка…</p>
+          </div>
+        </article>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>WAREHOUSE SYSTEM / .NET 8 · YARP · PostgreSQL · Docker</span>
+    <span>Пульт: статический HTML + CSS + JS, без сборки и внешних зависимостей</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

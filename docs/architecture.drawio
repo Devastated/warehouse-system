@@ -1,0 +1,98 @@
+<mxfile host="app.diagrams.net" modified="2026-11-11T00:00:00.000Z" agent="warehouse-project" version="24.0.0" type="device">
+  <diagram id="ctx" name="1. System Context">
+    <mxGraphModel dx="900" dy="650" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="u" value="Пользователь / оператор склада" style="shape=actor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="240" width="60" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="sys" value="Система &amp;laquo;Учет складских товаров&amp;raquo;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;API Gateway + 3 микросервиса + PostgreSQL&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="320" y="220" width="280" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.5;" edge="1" parent="1" source="u" target="sys">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l1" value="HTTP: создать товар / склад, приход, расход, остатки, история" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="e1">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="cont" name="2. Containers">
+    <mxGraphModel dx="900" dy="650" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cl" value="Client (curl / Postman)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="330" y="40" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="gw" value="API Gateway&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:10px&amp;quot;&amp;gt;YARP reverse proxy&amp;lt;br&amp;gt;:8080, Docker: gateway&amp;lt;/font&amp;gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="330" y="150" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p" value="Products Service&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:10px&amp;quot;&amp;gt;справочник товаров&amp;lt;br&amp;gt;:5001, Docker: products&amp;lt;/font&amp;gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="60" y="300" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="i" value="Inventory Service&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:10px&amp;quot;&amp;gt;склады и остатки&amp;lt;br&amp;gt;:5002, Docker: inventory&amp;lt;/font&amp;gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="340" y="300" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="m" value="Movements Service&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:10px&amp;quot;&amp;gt;приход/расход, оркестрация, история&amp;lt;br&amp;gt;:5003, Docker: movements&amp;lt;/font&amp;gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="620" y="300" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="PostgreSQL 16&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:10px&amp;quot;&amp;gt;база app, схемы products / inventory / movements&amp;lt;br&amp;gt;Docker: db, volume db_data&amp;lt;/font&amp;gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="300" y="470" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="cl" target="gw"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e1" value="проксирование /api/products" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;" edge="1" parent="1" source="gw" target="p"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" value="проксирование /api/warehouses, /api/inventory" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;" edge="1" parent="1" source="gw" target="i"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" value="проксирование /api/movements" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;" edge="1" parent="1" source="gw" target="m"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p" target="db"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="i" target="db"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="m" target="db"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" value="HTTP: проверка товара" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;fontSize=10;" edge="1" parent="1" source="m" target="p"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" value="HTTP: изменение остатка" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;fontSize=10;" edge="1" parent="1" source="m" target="i"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="lp" value="Npgsql (схема products)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="e4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="li" value="Npgsql (схема inventory)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="e5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="lm" value="Npgsql (схема movements)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="e6"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="comp" name="3. Component (Movements)">
+    <mxGraphModel dx="900" dy="650" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bound" value="Movements Service" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=none;strokeColor=#82b366;dashed=1;align=left;spacingLeft=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="120" y="80" width="640" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="ep" value="MovementEndpoints&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:10px&amp;quot;&amp;gt;POST /movements&amp;lt;br&amp;gt;GET /movements&amp;lt;br&amp;gt;GET /movements/{id}&amp;lt;/font&amp;gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="150" y="150" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="pc" value="ProductsClient&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:10px&amp;quot;&amp;gt;HttpClient -&amp;amp;gt; products:5001&amp;lt;/font&amp;gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="390" y="140" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ic" value="InventoryClient&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:10px&amp;quot;&amp;gt;HttpClient -&amp;amp;gt; inventory:5002&amp;lt;/font&amp;gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="390" y="240" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="repo" value="MovementRepository&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:10px&amp;quot;&amp;gt;INSERT/SELECT movements.movements&amp;lt;/font&amp;gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="150" y="300" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="ep" target="pc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="c2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="ep" target="ic"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="c3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="ep" target="repo"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ext1" value="Products Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="620" y="145" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ext2" value="Inventory Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="620" y="245" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ext3" value="PostgreSQL (схема movements)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="400" y="330" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="x1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="pc" target="ext1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="x2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="ic" target="ext2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="x3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="repo" target="ext3"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

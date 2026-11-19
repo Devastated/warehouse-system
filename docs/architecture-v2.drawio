@@ -1,0 +1,61 @@
+<mxfile host="app.diagrams.net" modified="2026-11-19T10:00:00.000Z" agent="Warehouse System" version="24.7.17">
+  <diagram id="containers-v2" name="Containers v2">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="УЧЁТ СКЛАДСКИХ ТОВАРОВ — КОНТЕЙНЕРЫ (v2)" style="text;html=1;align=center;verticalAlign=middle;fontSize=22;fontStyle=1;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="360" y="30" width="880" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" value="Браузер&#10;СКЛАД-ПУЛЬТ&#10;HTML + CSS + JS" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eef1e8;strokeColor=#17201e;strokeWidth=2;fontFamily=Courier New;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="100" width="400" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="gateway" value="GATEWAY :8080&#10;YARP + статика + /status" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#df5f27;strokeColor=#17201e;strokeWidth=2;fontColor=#17201e;fontFamily=Courier New;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="250" width="400" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="products" value="PRODUCTS :5001&#10;SKU, название, единица" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fbfaf3;strokeColor=#17201e;strokeWidth=2;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="80" y="430" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="inventory" value="INVENTORY :5002&#10;склады и остатки" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fbfaf3;strokeColor=#17201e;strokeWidth=2;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="430" y="430" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="movements" value="MOVEMENTS :5003&#10;приход / расход, история" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fbfaf3;strokeColor=#17201e;strokeWidth=2;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="780" y="430" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="reports" value="REPORTS :5004&#10;JSON + текстовый отчёт" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f6b66;strokeColor=#17201e;strokeWidth=2;fontColor=#ffffff;fontFamily=Courier New;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="430" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="PostgreSQL 16 — БАЗА app&#10;схемы: products / inventory / movements&#10;volume: db_data" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e5e7dd;strokeColor=#17201e;strokeWidth=2;fontFamily=Courier New;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="640" width="740" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;" edge="1" parent="1" source="browser" target="gateway">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="/api/products" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=10;fontFamily=Courier New;" edge="1" parent="1" source="gateway" target="products">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="/api/warehouses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=10;fontFamily=Courier New;" edge="1" parent="1" source="gateway" target="inventory">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="/api/movements" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=10;fontFamily=Courier New;" edge="1" parent="1" source="gateway" target="movements">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="/api/reports" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=10;fontFamily=Courier New;" edge="1" parent="1" source="gateway" target="reports">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;" edge="1" parent="1" source="products" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;" edge="1" parent="1" source="inventory" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;" edge="1" parent="1" source="movements" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="HTTP: aggregation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;fontSize=10;fontFamily=Courier New;" edge="1" parent="1" source="reports" target="products">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
