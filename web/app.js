@@ -349,13 +349,40 @@ async function seedDemo() {
     if (movements.length === 0) {
       const productBySku = new Map(products.map((p) => [p.sku, p]));
       const warehouseByName = new Map(warehouses.map((w) => [w.name, w]));
-      for (const movement of DEMO.movements) {
+      const demoWarehouseNameById = new Map(DEMO.warehouses.map((w) => [w.id, w.name]));
+
+      // Расход «Маркер чёрный −6» требует начального остатка 10 шт.
+      // Добавляем его до операций, чтобы сервис не вернул "insufficient stock".
+      const summary = await api('/api/reports/summary').catch(() => ({ stock: [] }));
+      const current = new Map((summary.stock || []).map((s) => [`${s.warehouseId}:${s.productId}`, s.quantity]));
+      const targetStock = [
+        { sku: 'SKU-002', warehouseName: 'Основной склад', qty: 10 },
+        { sku: 'SKU-003', warehouseName: 'Основной склад', qty: 18 }
+      ];
+      for (const target of targetStock) {
+        const product = productBySku.get(target.sku);
+        const warehouse = warehouseByName.get(target.warehouseName);
+        if (!product || !warehouse) continue;
+        const key = `${warehouse.id}:${product.id}`;
+        const delta = target.qty - Number(current.get(key) || 0);
+        if (delta <= 0) continue;
+        await api('/api/inventory/adjust', {
+          method: 'POST',
+          body: JSON.stringify({ warehouseId: warehouse.id, productId: product.id, delta })
+        });
+        added++;
+      }
+
+      for (const movement of [...DEMO.movements].sort((a, b) => a.id - b.id)) {
+        const warehouse = warehouseByName.get(demoWarehouseNameById.get(movement.warehouseId));
+        const product = productBySku.get(movement.productSku);
+        if (!warehouse || !product) continue;
         await api('/api/movements', {
           method: 'POST',
           body: JSON.stringify({
             type: movement.type,
-            warehouseId: warehouseByName.get(movement.warehouseName)?.id,
-            productId: productBySku.get(movement.sku)?.id,
+            warehouseId: warehouse.id,
+            productId: product.id,
             quantity: movement.quantity
           })
         });

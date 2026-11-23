@@ -23,7 +23,7 @@ var routes = new[]
         Match = new RouteMatch { Path = "/api/products/{**catch-all}" },
         Transforms = new List<Dictionary<string, string>>
         {
-            new() { ["PathRemovePrefix"] = "/api/products" }
+            new() { ["PathRemovePrefix"] = "/api" }
         }
     },
     new RouteConfig
@@ -33,7 +33,7 @@ var routes = new[]
         Match = new RouteMatch { Path = "/api/warehouses/{**catch-all}" },
         Transforms = new List<Dictionary<string, string>>
         {
-            new() { ["PathRemovePrefix"] = "/api/warehouses" }
+            new() { ["PathRemovePrefix"] = "/api" }
         }
     },
     new RouteConfig
@@ -43,7 +43,7 @@ var routes = new[]
         Match = new RouteMatch { Path = "/api/inventory/{**catch-all}" },
         Transforms = new List<Dictionary<string, string>>
         {
-            new() { ["PathRemovePrefix"] = "/api/inventory" }
+            new() { ["PathRemovePrefix"] = "/api" }
         }
     },
     new RouteConfig
@@ -53,7 +53,7 @@ var routes = new[]
         Match = new RouteMatch { Path = "/api/movements/{**catch-all}" },
         Transforms = new List<Dictionary<string, string>>
         {
-            new() { ["PathRemovePrefix"] = "/api/movements" }
+            new() { ["PathRemovePrefix"] = "/api" }
         }
     },
     new RouteConfig
@@ -64,6 +64,60 @@ var routes = new[]
         Transforms = new List<Dictionary<string, string>>
         {
             new() { ["PathRemovePrefix"] = "/api/reports" }
+        }
+    },
+
+    // Базовые пути без завершающей части: /api/products -> /products и т.д.
+    // Без этих маршрутов YARP матчит только /api/products/... и отдаёт 404
+    // для запросов самого пульта (/api/products, /api/warehouses, ...).
+    new RouteConfig
+    {
+        RouteId = "products-root",
+        ClusterId = "products",
+        Match = new RouteMatch { Path = "/api/products" },
+        Transforms = new List<Dictionary<string, string>>
+        {
+            new() { ["PathRemovePrefix"] = "/api" }
+        }
+    },
+    new RouteConfig
+    {
+        RouteId = "warehouses-root",
+        ClusterId = "inventory",
+        Match = new RouteMatch { Path = "/api/warehouses" },
+        Transforms = new List<Dictionary<string, string>>
+        {
+            new() { ["PathRemovePrefix"] = "/api" }
+        }
+    },
+    new RouteConfig
+    {
+        RouteId = "inventory-root",
+        ClusterId = "inventory",
+        Match = new RouteMatch { Path = "/api/inventory" },
+        Transforms = new List<Dictionary<string, string>>
+        {
+            new() { ["PathRemovePrefix"] = "/api" }
+        }
+    },
+    new RouteConfig
+    {
+        RouteId = "movements-root",
+        ClusterId = "movements",
+        Match = new RouteMatch { Path = "/api/movements" },
+        Transforms = new List<Dictionary<string, string>>
+        {
+            new() { ["PathRemovePrefix"] = "/api" }
+        }
+    },
+    new RouteConfig
+    {
+        RouteId = "reports-root",
+        ClusterId = "reports",
+        Match = new RouteMatch { Path = "/api/reports" },
+        Transforms = new List<Dictionary<string, string>>
+        {
+            new() { ["PathRemovePrefix"] = "/api" }
         }
     }
 };
